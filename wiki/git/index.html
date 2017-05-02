@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>关于git的一些有用的命令 - Kelvin的胡言乱语</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Kelvin Hu" />
+    <meta name="description" content="useful commands during using git" />
+    <meta name="keywords" content="git, git command" />
+    <link rel="stylesheet" href="/media/css/main.css" type="text/css">
+    <link rel="stylesheet" href="/media/css/prettify.css" type="text/css">
+  </head>
+  <body class="container">
+    <div>
+      <header class="masthead">
+        <h1 class="masthead-title"><a href="/">Kelvin的胡言乱语</a></h1>
+        <p>==============&gt; 重剑无锋，大巧不工。</p>
+        <ul>
+          <li><a href="/blog/">Blog</a></li>
+          <li><a href="/wiki/">Wiki</a></li>
+          <li><a href="/tags/">Tags</a></li>
+          <li><a href="/about/">About</a></li>
+          <li><a href="https://github.com/kelvinh">GitHub</a></li>
+          <li><a href="/rss.xml">RSS</a></li>
+        </ul>
+        <form method="get" id="searchform" action="//www.google.com/search">
+          <input type="text" class="field" name="q" id="s" placeholder="Search">
+          <input type="hidden" name="as_sitesearch" value="kelvinh.github.io">
+        </form>
+      </header>
+    </div>
+
+<div>
+<div class="post">
+<h1>关于git的一些有用的命令</h1>
+<p>
+这是一篇备忘性质的文章，主要记录我在使用git的过程中，个人觉得一些比较有用的命令。会不定期更新。
+</p>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">useful commands</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+</div><div id="outline-container-orgheadline1" class="outline-3">
+<h3 id="orgheadline1">pretty log:</h3>
+<div class="outline-text-3" id="text-orgheadline1">
+<p>
+以前我会用一些GUI的git工具来看历史提交记录，现在有了这个命令，发现那些GUI工具都弱爆了。。
+</p>
+
+<pre class="example">
+git log --oneline --graph --decorate
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-3">
+<h3 id="orgheadline2">modify commit message:</h3>
+<div class="outline-text-3" id="text-orgheadline2">
+<p>
+当某个commit提交后发现message错误时，可以用此命令修正：
+</p>
+
+<pre class="example">
+git commit --amend -m "correct message"
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="orgheadline3">clean useless files:</h3>
+<div class="outline-text-3" id="text-orgheadline3">
+<p>
+在工作区进行某些测试，例如 <code>make</code> ，可能会产生很多不需要提交到repository的文件，手动一个个删除又太麻烦，可以利用下面这个命令：
+</p>
+
+<pre class="example">
+git clean -fdx
+</pre>
+
+<p>
+所有未执行 <code>git add</code> 的文件将全部被删除。
+</p>
+
+<ol class="org-ol">
+<li><code>-f</code> 代表强制删除</li>
+<li><code>-d</code> 代表目录</li>
+<li><code>-x</code> 代表在 <code>.gitignore</code> 中存在的文件也一并删除</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="orgheadline4">clear obsolete branch:</h3>
+<div class="outline-text-3" id="text-orgheadline4">
+<p>
+If some branches are deleted at remote repository, the local branches will not be deleted automatically (e.g. a branch named <i>devel</i> at remote repo is deleted, the branch "remotes/origin/devel" will still exist), so use this command to clear the obsolete local branches:
+</p>
+
+<pre class="example">
+git remote prune origin
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">misc</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+</div><div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="orgheadline6">github proxy settings under windows</h3>
+<div class="outline-text-3" id="text-orgheadline6">
+<p>
+万恶的GFW，前两天封了github，这两天虽然解封了，但是访问速度慢得要死，clone一个repo才1KB/s。。。无奈，使用代理，但是windows下怎么设置代理还没弄过，折腾了好一阵子，才弄出来，只需要在命令行设置以下环境变量：
+</p>
+
+<pre class="example">
+set https_proxy=http://&lt;username&gt;:&lt;password&gt;@&lt;proxy_addr&gt;:&lt;proxy_port&gt;
+</pre>
+
+<p>
+需要注意的是，github使用的是https，所以如果上面设置成 <code>http_proxy</code> 的话是没有效果的，而且设置好之后，clone需要使用https协议，不能使用git协议：
+</p>
+
+<pre class="example">
+git clone https://github.com/&lt;person&gt;/&lt;project&gt;.git
+</pre>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+    <div>
+      <div class="post-meta">
+        <span title="post date" class="post-info">2012-07-29</span>
+        <span title="last modification date" class="post-info">2013-03-31</span>
+        <span title="tags" class="post-info"><a href="/tags/git/">Git</a>, <a href="/tags/vcs/">VCS</a></span>
+        <span title="author" class="post-info">Kelvin Hu</span>
+      </div>
+      <script src="//code.jquery.com/jquery-latest.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.js"></script>
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="/media/js/main.js"></script>
+      <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-41088132-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+      </script>
+      <div class="footer">
+        <p>Generated by <a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.x (<a href="http://orgmode.org">Org mode</a> 8.x)</p>
+        <p>
+          Copyright &copy; 2012 - <span id="footerYear"></span> <a href="mailto:ini &lt;dot&gt; kelvin &lt;at&gt; gmail &lt;dot&gt; com">Kelvin Hu</a>
+          &nbsp;&nbsp;-&nbsp;&nbsp;
+          Powered by <a href="https://github.com/kelvinh/org-page" target="_blank">org-page</a>
+          <script type="text/javascript">document.getElementById("footerYear").innerHTML = (new Date()).getFullYear();</script>
+        </p>
+      </div>
+    </div>
+
+  </body>
+</html>

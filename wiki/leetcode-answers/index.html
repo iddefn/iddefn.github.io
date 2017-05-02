@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>LeetCode题解 - Kelvin的胡言乱语</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Kelvin Hu" />
+    <meta name="description" content="我个人的LeetCode OJ题解" />
+    <meta name="keywords" content="algorithm, C++, leetcode" />
+    <link rel="stylesheet" href="/media/css/main.css" type="text/css">
+    <link rel="stylesheet" href="/media/css/prettify.css" type="text/css">
+  </head>
+  <body class="container">
+    <div>
+      <header class="masthead">
+        <h1 class="masthead-title"><a href="/">Kelvin的胡言乱语</a></h1>
+        <p>==============&gt; 重剑无锋，大巧不工。</p>
+        <ul>
+          <li><a href="/blog/">Blog</a></li>
+          <li><a href="/wiki/">Wiki</a></li>
+          <li><a href="/tags/">Tags</a></li>
+          <li><a href="/about/">About</a></li>
+          <li><a href="https://github.com/kelvinh">GitHub</a></li>
+          <li><a href="/rss.xml">RSS</a></li>
+        </ul>
+        <form method="get" id="searchform" action="//www.google.com/search">
+          <input type="text" class="field" name="q" id="s" placeholder="Search">
+          <input type="hidden" name="as_sitesearch" value="kelvinh.github.io">
+        </form>
+      </header>
+    </div>
+
+<div>
+<div class="post">
+<h1>LeetCode题解</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline1">Two Sum</a></li>
+<li><a href="#orgheadline2">Add Two Numbers</a></li>
+<li><a href="#orgheadline3">Longest Substring Without Repeating Characters</a></li>
+<li><a href="#orgheadline4">Median of Two Sorted Arrays</a></li>
+<li><a href="#orgheadline5">Longest Palindromic Substring</a></li>
+<li><a href="#orgheadline6">ZigZag Conversion</a></li>
+<li><a href="#orgheadline7">Reverse Integer</a></li>
+<li><a href="#orgheadline8">String to Integer (atoi)</a></li>
+<li><a href="#orgheadline9">Palindrome Number</a></li>
+</ul>
+</div>
+</div>
+<p>
+之前无数的事实证明，我是一个挖坑的好手。。。这又是一个无比大的坑，不求其它，只求能填上。。。挖坑不填是SB。。。
+</p>
+
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="orgheadline1">Two Sum</h2>
+<div class="outline-text-2" id="text-orgheadline1">
+<blockquote>
+<p>
+Given an array of integers, find two numbers such that they add up to a specific target number.
+</p>
+
+<p>
+The function twoSum should return indices of the two numbers such that they add up to the target, where index1 must be less than index2. Please note that your returned answers (both index1 and index2) are not zero-based.
+</p>
+
+<p>
+You may assume that each input would have exactly one solution.
+</p>
+
+<p>
+Input: numbers={2, 7, 11, 15}, target=9
+Output: index1=1, index2=2
+</p>
+</blockquote>
+
+<p>
+最简单的想法，自然是两层for循环数组，一个个去加了试：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-C++">class Solution {
+public:
+    vector&lt;int&gt; twoSum(vector&lt;int&gt;&amp; nums, int target) {
+        vector&lt;int&gt; vec;
+        for (int i = 0; i &lt; nums.size(); ++i) {
+            for (int j = i + 1; j &lt; nums.size(); ++j) {
+                if (nums[i] + nums[j] == target) {
+                    vec.push_back(i + 1);
+                    vec.push_back(j + 1);
+                    return vec;
+                }
+            }
+        }
+
+        return vec;
+    }
+};
+</pre>
+</div>
+
+<p>
+但结果可想而知，时间超时了。。。这个复杂度是平方级别，看来是不满足要求。经过思考，觉得先给数组排个序会比较好，再查找的话，可以用二分搜索：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-C++">class Solution {
+public:
+    struct entity {
+        int num;
+        int index;
+
+        entity(int n, int i) : num(n), index(i) {}
+
+        bool operator&lt;(const entity&amp; that) const {
+            return this-&gt;num &lt; that.num;
+        }
+    };
+
+    vector&lt;int&gt; twoSum(vector&lt;int&gt;&amp; nums, int target) {
+        vector&lt;int&gt; ret;
+
+        vector&lt;entity&gt; sorted_num;
+        for (int i = 0; i &lt; nums.size(); ++i)
+            sorted_num.push_back(entity(nums[i], i + 1));
+        sort(sorted_num.begin(), sorted_num.end());
+
+        vector&lt;entity&gt;::iterator it, end;
+        for (it = sorted_num.begin(), end = sorted_num.end(); it != end;) {
+            int op = target - it-&gt;num;
+            vector&lt;entity&gt;::iterator op_it = lower_bound(++it, end, entity(op, 0));
+            if (op_it-&gt;num == op) {
+                --it;
+
+                int idx1 = it-&gt;index;
+                int idx2 = op_it-&gt;index;
+                if (idx1 &gt; idx2)
+                    swap(idx1, idx2);
+
+                ret.push_back(idx1);
+                ret.push_back(idx2);
+                return ret;
+            }
+        }
+
+        return ret;
+    }
+};
+</pre>
+</div>
+
+<p>
+经过改造之后，时间复杂度降到了O(nlogn)级别，所以通过了，这个理论上应该不会有更低的复杂度了，毕竟要遍历一遍。。。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="orgheadline2">Add Two Numbers</h2>
+<div class="outline-text-2" id="text-orgheadline2">
+<blockquote>
+<p>
+You are given two linked lists representing two non-negative numbers. The digits are stored in reverse order and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.
+</p>
+
+<p>
+Input: (2 -&gt; 4 -&gt; 3) + (5 -&gt; 6 -&gt; 4)
+Output: 7 -&gt; 0 -&gt; 8
+</p>
+</blockquote>
+
+<p>
+这个题目应该是很简单的，创建一个循环直到两个链表都空了为止，每个循环把两个数加起来，如果有进位，标记一下，下一轮进位。需要注意的是，在循环结束之后，如果还有进位，记得增加一个值为1的结点。代码如下：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-C++">/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+        bool carry = false;
+        ListNode dummy(-1);
+        ListNode *last = &amp;dummy;
+
+        while (true) {
+            if (!l1 &amp;&amp; !l2)
+                break;
+
+            int val1 = l1 ? l1-&gt;val : 0;
+            int val2 = l2 ? l2-&gt;val : 0;
+
+            int sum = val1 + val2;
+            if (carry) {
+                sum += 1;
+                carry = false;
+            }
+
+            if (sum &gt;= 10) {
+                sum -= 10;
+                carry = true;
+            }
+
+            last-&gt;next = new ListNode(sum);
+            last = last-&gt;next;
+
+            l1 = l1 ? l1-&gt;next : NULL;
+            l2 = l2 ? l2-&gt;next : NULL;
+        }
+
+        if (carry)
+            last-&gt;next = new ListNode(1);
+
+        return dummy.next;
+    }
+};
+</pre>
+</div>
+
+<p>
+其实还有一个更好一点的解法：在一个链表结束后，直接把另外一个长链表剩下的部分挂到结果链表上，处理好进位即可。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-2">
+<h2 id="orgheadline3">Longest Substring Without Repeating Characters</h2>
+<div class="outline-text-2" id="text-orgheadline3">
+<blockquote>
+<p>
+Given a string, find the length of the longest substring without repeating characters. For example, the longest substring without repeating letters for "abcabcbb" is "abc", which the length is 3. For "bbbbb" the longest substring is "b", with the length of 1.
+</p>
+</blockquote>
+
+<p>
+这个是查找字符串中最长无重复字符字串的问题。可以假设我已经有一个最长无重复的子串，那么下一步如何做？自然是判断下一个字符在这个子串里有没有，如果没有，加入这个字符，继续查找下一个；如果有，那么就把当前串里这个字符及以前的部分切掉，剩下的仍然是一个无重复的最大子串，继续查找下一个即可。但有一个关键点是，如果高效查找这个子串里是不是已经存在某个字符。简单的自然是循环一遍，不过因为字符数量有限，我采用了数组保存的方式，这样查找就能降到O(1)级别。代码如下：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-C++">class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        int start = 0;
+        int end = 0;
+        int longest = 0;
+
+        int position[256] = {0};
+
+        while (end &lt; s.length()) {
+            char c = s[end];
+            int&amp; pos = position[c];
+            if (pos) {
+                int len = end - start;
+                if (len &gt; longest)
+                    longest = len;
+
+                int old_start = start;
+                start = pos;
+
+                for (int i = old_start; i &lt; pos; ++i)
+                    position[s[i]] = 0;
+            }
+
+            pos = end + 1;
+            ++end;
+        }
+
+        int len = end - start;
+        if (len &gt; longest)
+            longest = len;
+
+        return longest;
+    }
+};
+</pre>
+</div>
+
+<p>
+其中 <code>position[256]</code> 保存了字符在串中的位置，但因为0被用来表示没有出现，所以位置就只能从1开始了，所以那个 <code>pos = end + 1;</code> 看起来就会比较别扭。。。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-2">
+<h2 id="orgheadline4">Median of Two Sorted Arrays</h2>
+<div class="outline-text-2" id="text-orgheadline4">
+<blockquote>
+<p>
+There are two sorted arrays nums1 and nums2 of size m and n respectively. Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
+</p>
+</blockquote>
+
+<p>
+题目的意思是，找两个已经排序的数组的中位数，要求时间复杂度是O(log(m+n))。突然间觉得好对不起我的高中数学老师，我竟然不知道中位数是怎么算的了，google了一下才知道，对一个排好序的数列，如果项数是奇数项，中位数就是最中间的数；如果项数是偶数项，中位数就是最中间两个数的平均数。不过，下面的叙述中，为了方便理解，我们以奇数项为例，偶数项其实是一样，不过因为偶数项的中位数要涉及两个数，所以叙述上要麻烦一些。
+</p>
+
+<p>
+这个题目明确标明了是Hard，这也是这几题遇到的第一个Hard级别的题。如果将两个数混在一起排好序，取中间就可以了，但这样必然要到排序O(nlog(m+n))的复杂度，达不到要求。要达到O(log(m+n))的复杂度，必然要针对两个数组使用类似二分查找的算法才能满足。仔细分析了一下，发现我们的需求其实是淘汰掉两个数组中大约一半的最小的数，然后剩下的第一个数就是中位数。记要淘汰的个数为C，那么这个C应该等于(m+n)/2。如何淘汰呢？我们采用二分查找的方式：分别找到数组A、B中的第C/2个数，然后比较，如果A[C/2]大于B[C/2]，那么就直接把数组B中C/2及以前的数都淘汰掉，反之就淘汰掉A中C/2及以前的数。然后C减去已淘汰的个数，继续上述过程，直到C为0为止。那么剩下的两个数组中，最小的数就是中位数。当然，如果数组整体长度不够，就用整体长度来代替C/2。
+</p>
+
+<p>
+这个做法的正确性可以采用反证法很好地证明：假设A[C/2] &gt; B[C/2]，于是在淘汰B中的C/2个数时，淘汰了我们需要的中位数，那么这个数的位置P必然小于等于C/2，因为按照我们前面的约定，要淘汰掉C个数然后剩下的第一个才是中位数，那么我们就要找到C个小于等于B[P]的数才行。在B中，能淘汰的数是P-1个，要小于C/2，那么必然要求在A中淘汰大于C/2个数。但我们已经知道，A[C/2] &gt; B[C/2] &gt;= B[P]，那么A中自然是没有足够的数供淘汰的，于是正确性得证。
+</p>
+
+<p>
+实现代码如下，因为要不停地去判断是偶数项还是奇数项，还要判断数组长度，所以代码写得比较乱：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-C++">class Solution {
+public:
+    double findMedianSortedArrays(vector&lt;int&gt;&amp; nums1, vector&lt;int&gt;&amp; nums2) {
+        int total = nums1.size() + nums2.size();
+        int before = (total - 1) / 2;
+
+        int start1 = 0;
+        int start2 = 0;
+
+        while (before &gt; 1) {
+            if (start1 &gt;= nums1.size()) {
+                start2 += before;
+                if (total % 2 == 0)
+                    return (nums2[start2] + nums2[start2 + 1]) * 1.0 / 2;
+                else
+                    return nums2[start2];
+            }
+
+            if (start2 &gt;= nums2.size()) {
+                start1 += before;
+                if (total % 2 == 0)
+                    return (nums1[start1] + nums1[start1 + 1]) * 1.0 / 2;
+                else
+                    return nums1[start1];
+            }
+
+            int count = before / 2;
+            int actual1, n1;
+            int actual2, n2;
+
+            int size1 = nums1.size() - start1;
+            int size2 = nums2.size() - start2;
+
+            if (count &gt;= size1) {
+                actual1 = size1;
+                n1 = nums1.back();
+            } else {
+                actual1 = count;
+                n1 = nums1.at(start1 + count - 1);
+            }
+
+            if (count &gt;= size2) {
+                actual2 = size2;
+                n2 = nums2.back();
+            } else {
+                actual2 = count;
+                n2 = nums2.at(start2 + count - 1);
+            }
+
+            if (n1 &gt; n2) {
+                start2 += actual2;
+                before -= actual2;
+            } else {
+                start1 += actual1;
+                before -= actual1;
+            }
+        }
+
+        if (before == 1) {
+            if (start1 &gt;= nums1.size())
+                start2 += 1;
+            else if (start2 &gt;= nums2.size())
+                start1 += 1;
+            else {
+                if (nums1[start1] &gt; nums2[start2])
+                    start2 += 1;
+                else
+                    start1 += 1;
+            }
+
+            before = 0;
+        }
+
+        if (total % 2 == 0) {
+            if (start1 &gt;= nums1.size())
+                return (nums2[start2] + nums2[start2 + 1]) * 1.0 / 2;
+            else if (start2 &gt;= nums2.size())
+                return (nums1[start1] + nums1[start1 + 1]) * 1.0 / 2;
+            else {
+                int m1, m2;
+                if (nums1[start1] &gt; nums2[start2]) {
+                    m1 = nums2[start2];
+                    start2 += 1;
+                } else {
+                    m1 = nums1[start1];
+                    start1 += 1;
+                }
+
+                if (start1 &gt;= nums1.size())
+                    m2 = nums2[start2];
+                else if (start2 &gt;= nums2.size())
+                    m2 = nums1[start1];
+                else {
+                    if (nums1[start1] &gt; nums2[start2])
+                        m2 = nums2[start2];
+                    else
+                        m2 = nums1[start1];
+                }
+
+                return (m1 + m2) * 1.0 / 2;
+            }
+        } else {
+            if (start1 &gt;= nums1.size())
+                return nums2[start2];
+            else if (start2 &gt;= nums2.size())
+                return nums1[start1];
+            else {
+                if (nums1[start1] &gt; nums2[start2])
+                    return nums2[start2];
+                else
+                    return nums1[start1];
+            }
+        }
+    }
+};
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="orgheadline5">Longest Palindromic Substring</h2>
+<div class="outline-text-2" id="text-orgheadline5">
+<blockquote>
+<p>
+Given a string S, find the longest palindromic substring in S. You may assume that the maximum length of S is 1000, and there exists one unique longest palindromic substring.
+</p>
+</blockquote>
+
+<p>
+题目的意思是找字符串中最长的回文字符串。初步想法是遍历字符串，然后以当前字符为中轴，同时向前向后进行匹配，找到最长的回文串。感觉应该还有更简单更高效的做法，但目前还没想出来。。代码如下：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-C++">class Solution {
+public:
+    string longestPalindrome(string s) {
+        int longest_start = 0;
+        int longest_length = 0;
+
+        int pos = 0;
+        while (pos &lt; s.length()) {
+            int next = pos + 1;
+            int back = pos;
+            int start = pos;
+            int length = 0;
+            while (next &lt; s.length() &amp;&amp; back &gt;= 0) {
+                if (s[next] == s[back]) {
+                    start = back;
+                    length += 2;
+                    --back;
+                    ++next;
+                    continue;
+                }
+
+                break;
+            }
+
+            if (length == 0)
+                length = 1;
+
+            if (length &gt; longest_length) {
+                longest_start = start;
+                longest_length = length;
+            }
+
+            next = pos + 1;
+            back = pos - 1;
+            start = pos;
+            length = 1;
+            while (next &lt; s.length() &amp;&amp; back &gt;= 0) {
+                if (s[next] == s[back]) {
+                    start = back;
+                    length += 2;
+                    --back;
+                    ++next;
+                    continue;
+                }
+
+                break;
+            }
+
+            if (length &gt; longest_length) {
+                longest_start = start;
+                longest_length = length;
+            }
+
+            ++pos;
+        }
+
+        return s.substr(longest_start, longest_length);
+    }
+};
+</pre>
+</div>
+
+<p>
+补充：后来在看到《算法导论》的动态规划的时候，有一道习题就是这个，当时想：哇，可以用动态规划解耶！于是苦苦思索，终于想出解法，其实关键就是将子串是否是回文的信息存下来，供父串来判断。本来以为性能会比前面的算法好，但没想到却比前面的算法要差不少，因为要双重for循环，所以是O(n^2)级，确实是要差一些。代码如下：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-C++">class Solution {
+public:
+    static const int max_length = 1001;
+
+    bool isPalindrome(const string&amp; s, int start, int count, char *array) {
+        char *c = (array + start * max_length) + count;
+        if (*c == 1)
+            return true;
+
+        if (*c == -1)
+            return false;
+
+        if (s.at(start) != s.at(start + count - 1))
+            return false;
+
+        if (isPalindrome(s, start + 1, count - 2, array)) {
+            *c = 1;
+            return true;
+        } else {
+            *c = -1;
+            return false;
+        }
+    }
+
+    string longestPalindrome(string s) {
+        if (s.empty())
+            return s;
+
+        char array[max_length][max_length];
+        memset(array, 0x00, sizeof(array));
+
+        for (int i = 0; i &lt; s.length(); ++i) {
+            array[i][0] = 1;
+            array[i][1] = 1;
+        }
+
+        int start = 0;
+        int count = 1;
+        for (int i = 0; i &lt; s.length(); ++i) {
+            for (int j = i + 1; j &lt; s.length(); ++j) {
+                int len = j - i + 1;
+                if (len &lt; count)
+                    continue;
+                if (isPalindrome(s, i, len, (char *) array)) {
+                    if (len &gt; count) {
+                        start = i;
+                        count = len;
+                    }
+                }
+            }
+        }
+
+        return s.substr(start, count);
+    }
+};
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline6" class="outline-2">
+<h2 id="orgheadline6">ZigZag Conversion</h2>
+<div class="outline-text-2" id="text-orgheadline6">
+<blockquote>
+<p>
+The string "PAYPALISHIRING" is written in a zigzag pattern on a given number of rows like this: (you may want to display this pattern in a fixed font for better legibility)
+</p>
+
+<pre class="example">
+P   A   H   N
+A P L S I I G
+Y   I   R
+</pre>
+
+<p>
+And then read line by line: "PAHNAPLSIIGYIR"
+Write the code that will take a string and make this conversion given a number of rows:
+</p>
+
+<pre class="example">
+string convert(string text, int nRows);
+</pre>
+
+<p>
+<code>convert("PAYPALISHIRING", 3)</code> should return "PAHNAPLSIIGYIR".
+</p>
+</blockquote>
+
+<p>
+题目的意思是，把一个字符串折成锯齿状，然后再按行返回。这是目前为止第一个标记为Easy的题目，实际也确实比较简单，找到规律即可。其实可以发现：对于每一行的下一个字符的位置，都可以根据当前位置算出来，比如对于顶点，同一行的两个顶点之间，除了两个顶点行之外，其它行上的点都重复了两遍，再加上不重复的两个顶点即可，即：(n-2)*2+2。不是顶点的点同样可以用类似的方法推导出。所以只要知道了每行第一个点的位置就好办了，而每行第一个点的位置就是行数所对应的点。代码如下：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-C++">class Solution {
+public:
+    string convert(string s, int numRows) {
+        if (numRows == 1 || s.length() &lt;= numRows)
+            return s;
+
+        string result;
+        result.reserve(s.length());
+
+        const int n = numRows;
+
+        for (int i = 0; i &lt; n; ++i) {
+            int next = i;
+            bool down = true;
+            while (next &lt; s.length()) {
+                result.push_back(s[next]);
+
+                if (i == 0 || i == n - 1) {
+                    // next += (n - 1 - 1) * 2 + 2;
+                    next += (n - 1) &lt;&lt; 1;
+                    continue;
+                }
+
+                if (down)
+                    // next += (n - i - 1 - 1) * 2 + 2;
+                    next += (n - i - 1) &lt;&lt; 1;
+                else
+                    // next += (i - 1) * 2 + 2;
+                    next += i &lt;&lt; 1;
+
+                down = !down;
+            }
+        }
+
+        return result;
+    }
+};
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="orgheadline7">Reverse Integer</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+<blockquote>
+<p>
+Reverse digits of an integer.
+</p>
+
+<p>
+Example1: x = 123, return 321
+Example2: x = -123, return -321
+</p>
+</blockquote>
+
+<p>
+题目的意思很简单，反转一个整型数并返回。但这个问题关键并不是考算法，而是在考一些边缘情况，比方说反转后溢出的问题。不说了，提交了两次都被坑，第三次才通过，代码如下：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-C++">class Solution {
+public:
+    int reverse(int x) {
+        int max = static_cast&lt;int&gt;(static_cast&lt;unsigned int&gt;(-1) &gt;&gt; 1);
+        if (x == max + 1)
+            return 0;
+
+        bool negative = false;
+        if (x &lt; 0) {
+            negative = true;
+            x = -x;
+        }
+
+        int max_high = max / 10;
+        int max_low  = max % 10;
+
+        int ret = 0;
+
+        int num = 0;
+        while (x != 0) {
+            num = x % 10;
+            x /= 10;
+
+            if (ret &gt; max_high || (ret == max_high &amp;&amp; num &gt; max_low))
+                return 0;
+
+            ret = ret * 10 + num;
+        }
+
+        if (negative)
+            ret = -ret;
+
+        return ret;
+    }
+};
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline8" class="outline-2">
+<h2 id="orgheadline8">String to Integer (atoi)</h2>
+<div class="outline-text-2" id="text-orgheadline8">
+<blockquote>
+<p>
+Implement atoi to convert a string to an integer.
+</p>
+
+<p>
+Hint: Carefully consider all possible input cases. If you want a challenge, please do not see below and ask yourself what are the possible input cases.
+</p>
+
+<p>
+Notes: It is intended for this problem to be specified vaguely (ie, no given input specs). You are responsible to gather all the input requirements up front.
+</p>
+</blockquote>
+
+<p>
+这个题目也很简单，实现一个 <code>atoi</code> 函数，但是和上一题一样，关键不是考算法，而是考一些边缘情况，比方说溢出以及无效字符。代码如下：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-C++">class Solution {
+public:
+    enum state {
+        prefix,
+        number
+    };
+
+    int myAtoi(string str) {
+        const int max = static_cast&lt;int&gt;(static_cast&lt;unsigned int&gt;(-1) &gt;&gt; 1);
+        const int max_high = max / 10;
+        const int max_low  = max % 10;
+        int ret = 0;
+        bool positive = true;
+        state s = prefix;
+        for (int i = 0; i &lt; str.length(); ++i) {
+            char c = str[i];
+            switch (s) {
+            case prefix: {
+                if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+                    break;
+
+                if (c == '+') {
+                    s = number;
+                    break;
+                }
+
+                if (c == '-') {
+                    positive = false;
+                    s = number;
+                    break;
+                }
+
+                if (c &gt;= '0' &amp;&amp; c &lt;= '9') {
+                    ret = ret * 10 + c - '0';
+                    s = number;
+                    break;
+                }
+
+                return 0;
+            }
+            case number: {
+                if (c &lt; '0' || c &gt; '9')
+                    goto end;
+
+                if (ret &gt; max_high)
+                    return positive ? max : max + 1;
+
+                if (ret == max_high &amp;&amp; (c - '0') &gt; max_low)
+                    return positive ? max : max + 1;
+
+                ret = ret * 10 + c - '0';
+                break;
+            }
+            default:
+                break;
+            }
+        }
+
+    end:
+
+        if (!positive) {
+            ret = -ret;
+        }
+
+        return ret;
+    }
+};
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-2">
+<h2 id="orgheadline9">Palindrome Number</h2>
+<div class="outline-text-2" id="text-orgheadline9">
+<blockquote>
+<p>
+Determine whether an integer is a palindrome. Do this without extra space.
+</p>
+</blockquote>
+
+<p>
+这个题目也很简单，判断一个数字是否是回文数，但有一个关键点是，要求不能分配多余的空间。其实这个是有一点模糊的，因为多余的空间也没有指明是堆空间还是连栈空间都不能分配。前面有一个题目是反转数字，这个题目可以用到，将这个数字反转，如果和原来的数字相同，那么肯定是回文数，反之就不是。不过，前面那个反转需要考虑是否溢出的问题，这里就不需要，如果一个数字是回文数，那反转后因为是它本身，所以肯定不会溢出；如果反转后溢出了，那原来的数字肯定不是回文数。不过，因为考虑到原来的算法需要分配栈空间去保存临时变量，于是我改造了一个递归的版本（这其实不过是自欺欺人：难道函数调用的栈帧分配就不是多余空间吗。。），不过好歹是通过了测试，代码如下：
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-C++">class Solution {
+public:
+    int reverse(int x) {
+        if (x == 0) return 0;
+        return (x % 10) * static_cast&lt;int&gt;(pow(10, static_cast&lt;int&gt;(log10(x)))) + reverse(x / 10);
+    }
+
+    bool isPalindrome(int x) {
+        if (x &lt; 0)
+            return false;
+
+        return x == reverse(x);
+    }
+};
+</pre>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+    <div>
+      <div class="post-meta">
+        <span title="post date" class="post-info">2016-01-20</span>
+        <span title="last modification date" class="post-info">2016-06-26</span>
+        <span title="tags" class="post-info"><a href="/tags/algorithm/">Algorithm</a>, <a href="/tags/c++/">C++</a>, <a href="/tags/leetcode/">LeetCode</a></span>
+        <span title="author" class="post-info">Kelvin Hu</span>
+      </div>
+      <script src="//code.jquery.com/jquery-latest.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.js"></script>
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="/media/js/main.js"></script>
+      <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-41088132-1']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+      </script>
+      <div class="footer">
+        <p>Generated by <a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.x (<a href="http://orgmode.org">Org mode</a> 8.x)</p>
+        <p>
+          Copyright &copy; 2012 - <span id="footerYear"></span> <a href="mailto:ini &lt;dot&gt; kelvin &lt;at&gt; gmail &lt;dot&gt; com">Kelvin Hu</a>
+          &nbsp;&nbsp;-&nbsp;&nbsp;
+          Powered by <a href="https://github.com/kelvinh/org-page" target="_blank">org-page</a>
+          <script type="text/javascript">document.getElementById("footerYear").innerHTML = (new Date()).getFullYear();</script>
+        </p>
+      </div>
+    </div>
+
+  </body>
+</html>
